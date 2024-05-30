@@ -7,7 +7,6 @@ import re
 import logging
 import os
 import mysql.connector
-from mysql.connector import connection
 
 
 # tuple containing the fields from user_data.csv
@@ -49,16 +48,21 @@ def get_logger() -> logging.Logger:
 
 def get_db() -> mysql.connector.connection.MySQLConnection:
     """
+    connect to database using credentials in environnement
     """
-    user = os.getenv('PERSONAL_DATA_DB_USERNAME') or "root"
-    passwd = os.getenv('PERSONAL_DATA_DB_PASSWORD') or ""
-    host = os.getenv('PERSONAL_DATA_DB_HOST') or "localhost"
+    username = os.getenv('PERSONAL_DATA_DB_USERNAME', 'root')
+    password = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
+    host = os.getenv('PERSONAL_DATA_DB_HOST', 'localhost')
     db_name = os.getenv('PERSONAL_DATA_DB_NAME')
-    conn = mysql.connector.connect(user=user,
-                                   password=passwd,
-                                   host=host,
-                                   database=db_name)
-    return conn
+
+    db_connection = mysql.connector.connect(
+        user=username,
+        password=password,
+        host=host,
+        database=db_name
+    )
+
+    return db_connection
 
 
 class RedactingFormatter(logging.Formatter):
