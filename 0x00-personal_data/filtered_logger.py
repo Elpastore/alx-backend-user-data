@@ -88,23 +88,21 @@ class RedactingFormatter(logging.Formatter):
         return super(RedactingFormatter, self).format(record)
 
 
-def main() -> None:
+def main():
     """
     obtain a database connection using get_db and
-    retrieve all rows in the users table and display
-    each row under a filtered format
+    retrieve all rows in the users table and
+    display each row under a filtered format
     """
     cnx = get_db()
     cursor = cnx.cursor()
-
-    cursor.execute("SELECT * FROM users")
-    rows = cursor.fetchall()
-
     logger = get_logger()
-    for row in rows:
-        filtered_row = "".join("{}={}; ".format(key, value) for key, value in zip(PII_FIELDS, row) ) 
-        logger.info(filtered_row.strip())
-        
+    cursor.execute("SELECT * FROM users;")
+    fields = cursor.column_names
+    for row in cursor:
+        message = "".join("{}={}; ".format(key, value) for key,
+                          value in zip(fields, row))
+        logger.info(message.strip())
     cursor.close()
     cnx.close()
 
