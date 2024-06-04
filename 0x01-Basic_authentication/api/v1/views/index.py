@@ -32,3 +32,11 @@ def unauthorized_endpoint() -> None:
     Unauthorized endpoint
     """
     abort(401)
+
+
+@app_views.route('/forbidden', strict_slashes=False)
+def forbidden_endpoint() -> None:
+    """
+    Forbidden endpoint
+    """
+    abort(403)
