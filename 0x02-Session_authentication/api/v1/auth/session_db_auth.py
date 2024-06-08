@@ -26,9 +26,15 @@ class SessionDBAuth(SessionExpAuth):
 
         if session_id is None:
             return None
-        user_session = UserSession(user_id=user_id, session_id=session_id)
+        if type(session_id) != str:
+            return None
+        
+        kwargs = {
+                'user_id': user_id,
+                'session_id': session_id,
+            }
+        user_session = UserSession(**kwargs)
         user_session.save()
-
         return session_id
 
     def user_id_for_session_id(self, session_id=None):
@@ -41,16 +47,20 @@ class SessionDBAuth(SessionExpAuth):
             return None
 
         session = UserSession.search({'session_id': session_id})
-        if session:
-            created_at = session.get("created_at")
-            if created_at is None:
-                return None
+        if session is None:
+            return None
 
-            exp_time = created_at + timedelta(seconds=self.session_duration)
-            if exp_time < datetime.now():
-                return None
-            return session.user_id
-        return None
+        created_at = session[0].created_at
+        if created_at is None:
+            return None
+
+        if self.session_duration <= 0:
+            return session[0].user_id
+        
+        exp_time = created_at + timedelta(seconds=self.session_duration)
+        if exp_time < datetime.now():
+            return None
+        return session[0].user_id
 
     def destroy_session(self, request=None):
         """
@@ -60,13 +70,11 @@ class SessionDBAuth(SessionExpAuth):
             return False
 
         session_id = self.session_cookie(request)
-        if not session_id:
+        try:
+            sessions = UserSession.search({'session_id': session_id})
+        except Exception:
             return False
-        sessions = UserSession.search({'session_id': session_id})
-        if not sessions:
+        if len(sessions) <= 0:
             return False
-
-        session = sessions[0]
-        session.remove()
-
+        sessions[0].remove()
         return True
