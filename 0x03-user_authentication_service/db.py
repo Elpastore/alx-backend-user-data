@@ -41,8 +41,8 @@ class DB:
         self._session.commit()
         return new_user
 
-        def find_user_by(self, **kwargs) -> User:
-            """
+    def find_user_by(self, **kwargs) -> User:
+        """
         method that find a user based on argument
         """
         try:
