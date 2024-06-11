@@ -33,14 +33,15 @@ class DB:
             DBSession = sessionmaker(bind=self._engine)
             self.__session = DBSession()
         return self.__session
-    
+
     def add_user(self, email: str, hashed_password: str) -> User:
         """
         add a new user
         """
+        session = self._session
         user = User(email=email, hashed_password=hashed_password)
-        self._session.add(user)
-        self._session.commit()
+        session.add(user)
+        session.commit()
 
         return user
 
@@ -49,7 +50,8 @@ class DB:
         method that find a user based on argument
         """
         try:
-            user = self._session.query(User).filter_by(**kwargs).one()
+            session = self._session
+            user = session.query(User).filter_by(**kwargs).one()
         except NoResultFound:
             raise NoResultFound("No user found with the specified attributes")
         except InvalidRequestError:
@@ -60,11 +62,11 @@ class DB:
         """
         update user credentials method
         """
+        session = self._session
         user = self.find_user_by(id=user_id)
         for key, value in kwargs.items():
             if hasattr(user, key):
                 setattr(user, key, value)
             else:
                 raise ValueError
-        self._session.commit()
-
+        session.commit()
