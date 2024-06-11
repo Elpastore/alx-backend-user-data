@@ -3,29 +3,36 @@ import requests
 
 BASE_URL = "http://0.0.0.0:5000"
 
+
 def register_user(email: str, password: str) -> None:
     """
     test for register
     """
-    response = requests.post(f"{BASE_URL}/users", data={"email": email, "password": password})
+    response = requests.post(f"{BASE_URL}/users",
+                             data={"email": email, "password": password})
     assert response.status_code == 200
     assert response.json() == {"email": email, "message": "user created"}
+
 
 def log_in_wrong_password(email: str, password: str) -> None:
     """
     test for login
     """
-    response = requests.post(f"{BASE_URL}/sessions", data={"email": email, "password": password})
+    response = requests.post(f"{BASE_URL}/sessions",
+                             data={"email": email, "password": password})
     assert response.status_code == 401
+
 
 def log_in(email: str, password: str) -> str:
     """
     test for login
     """
-    response = requests.post(f"{BASE_URL}/sessions", data={"email": email, "password": password})
+    response = requests.post(f"{BASE_URL}/sessions",
+                             data={"email": email, "password": password})
     assert response.status_code == 200
     assert "session_id" in response.cookies
     return response.cookies["session_id"]
+
 
 def profile_unlogged() -> None:
     """
@@ -33,6 +40,7 @@ def profile_unlogged() -> None:
     """
     response = requests.get(f"{BASE_URL}/profile")
     assert response.status_code == 403
+
 
 def profile_logged(session_id: str) -> None:
     """
@@ -43,6 +51,7 @@ def profile_logged(session_id: str) -> None:
     assert response.status_code == 200
     assert "email" in response.json()
 
+
 def log_out(session_id: str) -> None:
     """
     test for logout
@@ -51,13 +60,16 @@ def log_out(session_id: str) -> None:
     response = requests.delete(f"{BASE_URL}/sessions", cookies=cookies)
     assert response.status_code == 200
 
+
 def reset_password_token(email: str) -> str:
     """
     test for reset password token
     """
-    response = requests.post(f"{BASE_URL}/reset_password", data={"email": email})
+    response = requests.post(f"{BASE_URL}/reset_password",
+                             data={"email": email})
     assert response.status_code == 200
     return response.json()["reset_token"]
+
 
 def update_password(email: str, reset_token: str, new_password: str) -> None:
     """
@@ -70,6 +82,7 @@ def update_password(email: str, reset_token: str, new_password: str) -> None:
     })
     assert response.status_code == 200
     assert response.json() == {"email": email, "message": "Password updated"}
+
 
 EMAIL = "guillaume@holberton.io"
 PASSWD = "b4l0u"
