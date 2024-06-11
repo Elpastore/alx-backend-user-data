@@ -50,7 +50,7 @@ def login():
     return response
 
 
-@app.route("/logout", methods=['DELETE'], strict_slashes=False)
+@app.route("/sessions", methods=['DELETE'], strict_slashes=False)
 def logout():
     """
     logout route
@@ -62,7 +62,7 @@ def logout():
     if user is None:
         abort(403)
     AUTH.destroy_session(user.id)
-    return redirect('/')
+    return redirect(url_for('home'))
 
 
 if __name__ == '__main__':
